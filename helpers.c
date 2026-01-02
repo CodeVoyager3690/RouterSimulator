@@ -1,6 +1,35 @@
 #include "helpers.h"
+#include "routing.h"
 #include <stdlib.h>
 #include <stdio.h>
+
+void print_routing_table(RoutingTable *table)
+{
+    RouteEntry *entry = table->routeEntries;
+    printf("destination_ip\tmask\tnext_hop_router\n");
+    while (entry != NULL)
+    {
+        print_route_entry(entry);
+        entry = entry->next;
+    }
+}
+void print_route_entry(RouteEntry *r)
+{
+
+    print_ip(r->destination_ip);
+    printf("\t");
+    print_ip(r->mask);
+    printf("\t");
+    if (r->router != NULL)
+    {
+        printf("router-%llu", r->router->ID);
+    }
+    else
+    {
+        printf("direct");
+    }
+    printf("\n");
+}
 void print_ip(uint32_t ip)
 {
     int leftOctet = ip >> 24;
@@ -9,15 +38,6 @@ void print_ip(uint32_t ip)
     int rightOctet = ip & 0xff;
     printf("%d.%d.%d.%d", leftOctet, leftMiddleOctet, rightMiddleOctet, rightOctet);
 }
-
-// circular queue
-struct Queue
-{
-    size_t capacity;
-    size_t rear; // enqueue position
-    size_t head; // dequeue position
-    Packet **packets;
-};
 
 Queue *create_queue(size_t capacity)
 {

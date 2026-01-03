@@ -20,9 +20,9 @@ void print_route_entry(RouteEntry *r)
     printf("\t");
     print_ip(r->mask);
     printf("\t");
-    if (r->router != NULL)
+    if (r->nextHopRouter != NULL)
     {
-        printf("router-%llu", r->router->ID);
+        printf("router-%llu", r->nextHopRouter->ID);
     }
     else
     {
@@ -52,7 +52,7 @@ Queue *create_queue(size_t capacity)
     q->packets = calloc(capacity, sizeof(Packet *));
     if (!q->packets)
     {
-        return NULL;
+        exit(1);
     }
     return q;
 }
@@ -103,6 +103,9 @@ int enqueue(Queue *q, Packet *p)
     return 1;
 }
 
+uint32_t create_ip(uint32_t octet1,uint32_t octet2, uint32_t octet3, uint32_t octet4){
+    return octet1 << 24 | octet2 << 16 | octet3 << 8 | octet4;
+}
 /*
 int main()
 {

@@ -8,65 +8,39 @@ void test_multi_hop_routing()
 {
     printf("=== Test: Multi-Hop Router Network ===\n\n");
 
-    // Create 4 routers in a chain
-    Router *router1 = create_router(1);
-    Router *router2 = create_router(2);
-    Router *router3 = create_router(3);
-    Router *router4 = create_router(4);
+    // Create 4 routers with routing tables initialized
+    Router *router1 = initialize_router(1, create_ip(192, 0, 0, 0), 0xFF000000, NULL);
+    Router *router2 = initialize_router(2, create_ip(192, 168, 0, 0), 0xFFFF0000, NULL);
+    Router *router3 = initialize_router(3, create_ip(192, 168, 4, 0), 0xFFFFFF00, NULL);
+    Router *router4 = initialize_router(4, create_ip(192, 168, 4, 50), 0xFF000000, NULL);
 
     printf("Created 4 routers with IDs: 1, 2, 3, 4\n\n");
 
-    // Setup Router 1's routing table
-    // Routes packets destined to 192.168.2.10/24 to Router 2
-    RouteEntry r1_entry;
-    r1_entry.destination_ip = create_ip(192,0,0,0);  //0xC0000000 // 192.0.0.0
-    r1_entry.mask = 0xFF000000;           // 8
-    r1_entry.nextHopRouter = router2;
-    r1_entry.next = NULL;
+    // Setup routing for Router 1
+    router1->table->routeEntries->nextHopRouter = router2;
+    printf("Router 1: Routes 192.0.0.0/8 -> Router 2\n");
 
-    RoutingTable r1_table;
-    r1_table.routeEntries = &r1_entry;
-    router1->table = &r1_table;
+    // Setup routing for Router 2
+    router2->table->routeEntries->nextHopRouter = router3;
+    printf("Router 2: Routes 192.168.0.0/16 -> Router 3\n");
 
-    printf("Router 1: Routes 192.168.4.0/24 -> Router 2\n");
-
-    // Setup Router 2's routing table
-    // Routes packets destined to 192.168.3.10/24 to Router 3
-    RouteEntry r2_entry;
-    r2_entry.destination_ip = create_ip(192,168,0,0); //  0xC0A80000; 192.168.0.0
-    r2_entry.mask = 0xFFFF0000;           // 16
-    r2_entry.nextHopRouter = router3;
-    r2_entry.next = NULL;
-
-    RoutingTable r2_table;
-    r2_table.routeEntries = &r2_entry;
-    router2->table = &r2_table;
-
-    printf("Router 2: Routes 192.168.4.0/24 -> Router 3\n");
-
-    // Setup Router 3's routing table
-    // Routes packets destined to 192.168.4.10/24 to Router 4
-    RouteEntry r3_entry;
-    r3_entry.destination_ip = create_ip(192,168,4,0);  //0xC0A80400 192.168.4.0
-    r3_entry.mask = 0xFFFFFF00;           // /24
-    r3_entry.nextHopRouter = router4;
-    r3_entry.next = NULL;
-
-    RoutingTable r3_table;
-    r3_table.routeEntries = &r3_entry;
-    router3->table = &r3_table;
-
+    // Setup routing for Router 3
+    router3->table->routeEntries->nextHopRouter = router4;
     printf("Router 3: Routes 192.168.4.0/24 -> Router 4\n\n");
 
-    // Create a packet destined to 192.168.4.50 (in Router 4's subnet)
-    uint8_t content[] = {'h', 'e', 'l', 'l', 'o', '\0'}; 
+    // Create a packet destined to 192.168.4.50
+    uint8_t content[] = {'h', 'e', 'l', 'l', 'o', '\0'};
     int content_size = 6;
-    uint32_t src_address = create_ip(10,11,12,13);
-    uint32_t dest_address = create_ip(192,168,4,50);
-    Packet *p = create_packet(src_address, dest_address,   64, content, content_size);
+    uint32_t src_address = create_ip(10, 11, 12, 13);
+    uint32_t dest_address = create_ip(192, 168, 4, 50);
+    Packet *p = create_packet(src_address, dest_address, 64, content, content_size);
 
-    printf("Sending packet from %u to %u\n\n", p->src_address, p->dest_address);
-   
+    printf("Sending packet from ");
+    print_ip(src_address);
+    printf(" to ");
+    print_ip(dest_address);
+    printf("\n\n");
+
     // Send packet to Router 1
     send_to_router(router1, p);
     printf("Packet queued at Router 1\n");
@@ -97,6 +71,11 @@ void test_multi_hop_routing()
             if (!is_empty_queue(router4->queue))
             {
                 printf("✓ Packet forwarded to Router 4\n");
+
+                // Process packets at Router 4
+                printf("\n--- Router 4 Processing ---\n");
+                process_packets(router4);
+
                 printf("\n✓✓✓ SUCCESS: Packet traversed all 4 routers correctly! ✓✓✓\n\n");
             }
             else
@@ -113,6 +92,12 @@ void test_multi_hop_routing()
     {
         printf("✗ Packet did not reach Router 2\n");
     }
+    
+    // Cleanup
+    free_router(router1);
+    free_router(router2);
+    free_router(router3);
+    free_router(router4);
 }
 
 int main()

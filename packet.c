@@ -5,6 +5,10 @@
 Packet *create_packet(uint32_t src, uint32_t dest, uint8_t ttl, uint8_t *content, uint8_t content_len)
 {
     Packet *p = malloc(sizeof(Packet));
+    if (!p)
+    {
+        exit(1);
+    }
     p->src_address = src;
     p->dest_address = dest;
     p->ttl = ttl;
@@ -19,6 +23,10 @@ Packet *create_packet(uint32_t src, uint32_t dest, uint8_t ttl, uint8_t *content
 
 void free_packet(Packet *p)
 {
+    if (!p)
+    {
+        return;
+    }
     free(p->content);
     free(p);
 }
@@ -45,6 +53,9 @@ void print_packet(Packet *p)
 uint8_t *serialize(Packet *pck)
 {
     uint8_t *out = calloc(MIN_PACKET_SIZE + pck->content_len, sizeof(uint8_t));
+    if(!out){
+        exit(1);
+    }
     out[0] = pck->src_address >> 24;
     out[1] = (pck->src_address >> 16) & 0xff;
     out[2] = (pck->src_address >> 8) & 0xff;

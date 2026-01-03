@@ -12,5 +12,8 @@ int main(){
     printf("LANG: %s\n", getenv("LANG"));
     execlp("hduezfdhzeuifhiuzefz", "whahaa");
     fprintf(stderr,"%s",strerror(errno));
+    if(!NULL){
+        printf("not null\n");
+    }
     return 0;
 }

@@ -7,14 +7,6 @@
 #include "packet.h"
 
 
-void* thread_function(void* arg) {
-    int* num = (int*)arg;
-    for(int i = 0; i < 10000; i++){
-        (*num)++;
-    }
-    return NULL; // Or any pointer
-}
-
 int main(){ 
     printf("=== Test: Multi-Hop Router Network ===\n\n");
 

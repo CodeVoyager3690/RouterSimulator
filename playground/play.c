@@ -1,4 +1,8 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+
 #define SIZE 3
 typedef int vast_matrix[SIZE][SIZE];
 
@@ -16,7 +20,7 @@ typedef struct{
 void loop(struct rec* inputRec){
     struct rec* current = inputRec;
     while(current != NULL){
-        printf("%d", current->i),
+        printf("%zu", current->i),
         current = current->next;
     }
 }
@@ -38,6 +42,9 @@ void loop_2d_array(int input[M][N]){
     }
 
 }
+
+
+
 
 int main(){
     /*
@@ -69,9 +76,18 @@ int main(){
     test();
     test();
     test();*/
-
+    /*
     int test[2][2] = {{1,1},{4,6},{7,9}};
     loop_2d_array(test);
+    */
+   
+    //10^2 = 100 
+    //with bit shifting
+
+
+    FILE* fp = fopen("./output.txt", "a");
+    fprintf(fp, "hello world\n");
+    fclose(fp);
 
     return 0;
 }

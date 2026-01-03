@@ -18,11 +18,16 @@ Router *create_router(uint64_t id)
         exit(1);
     }
     r->queue = q;
-
-    r->table = NULL;
+    r->table = (RoutingTable *)malloc(sizeof(RoutingTable));
+    if (!r->table)
+    {
+        exit(1);
+    }
+    r->table->routeEntries = NULL;
     return r;
 }
 
+//initialize router with one route
 Router *initialize_router(uint64_t id, uint32_t default_network, uint32_t default_mask, Router *default_next_hop)
 {
     Router *r = create_router(id);
@@ -73,6 +78,11 @@ void add_route(Router *r, uint32_t destination_ip, uint32_t mask, Router *next_h
     
     // Add to the end of the linked list
     RouteEntry *current = r->table->routeEntries;
+    if (current == NULL)
+    {
+        r->table->routeEntries = new_entry;
+        return;
+    }
     while (current->next != NULL)
     {
         current = current->next;
@@ -163,7 +173,8 @@ void process_packets(Router *r)
 void* process_packets_parallel(void *arg)
 {
     Router *r = (Router *)arg;
-    printf("Router %llu: Starting packet processing thread\n", r->ID);
+    FILE *fp = fopen("output.txt", "a");
+    fprintf(fp, "%llu: Starting packet processing thread\n", r->ID);
     if (r == NULL || r->table == NULL)
     {
         return NULL;

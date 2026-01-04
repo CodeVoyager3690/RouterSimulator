@@ -21,6 +21,14 @@ int main() {
     FILE *fp = fopen("output.txt", "a");
     fprintf(fp, "Simulation started with %d routers\n", rinfo->nRouters);
     start_routing_parallel(rinfo->nRouters, rinfo->routers);
+    
+ 
+    uint8_t content[] = {'h', 'e', 'l', 'l', 'o', '\0'};
+    Packet *p = create_packet(create_ip(10,11,12,13), create_ip(192,168,4,50),   64, content, 6);
+    send_to_router(rinfo->routers[0], p);
+    // Let the simulation run for a while
+
+    fprintf(fp, "Simulation ended\n");
     fclose(fp);
 
     return 0;

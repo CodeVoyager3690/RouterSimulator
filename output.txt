@@ -1,0 +1,5 @@
+Simulation started with 5 routers
+Simulation ended
+1: Starting packet processing thread
+2: Starting packet processing thread
+3: Starting packet processing thread

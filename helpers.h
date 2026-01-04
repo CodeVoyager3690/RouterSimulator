@@ -13,7 +13,7 @@ typedef struct RouteEntry RouteEntry;
 void print_ip(uint32_t ip);
 uint32_t create_ip(uint32_t octet1,uint32_t octet2, uint32_t octet3, uint32_t octet4);
 
-// circular queue
+// circular queue,  not thread safe
 typedef struct Queue
 {
     size_t capacity;

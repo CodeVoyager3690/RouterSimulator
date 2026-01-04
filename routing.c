@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <pthread.h>
+
+pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
 Router *create_router(uint64_t id)
 {
@@ -111,6 +114,15 @@ void process_packet(Router *r){
     {
         return;
     }
+    
+    pthread_mutex_lock(&lock);
+    FILE *fp = fopen("packets.txt", "a");
+    printf("-----PACKET %u ROUTER: %llu\n", p->dest_address, r->ID);
+    if (fp != NULL) {
+        fprintf(fp, "PACKET: %u ROUTER: %llu\n", p->dest_address, r->ID);
+        fclose(fp);
+    }
+    pthread_mutex_unlock(&lock);
 
     RouteEntry *best = NULL;
     int best_prefix = -1;

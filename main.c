@@ -9,15 +9,18 @@
 #include "read_router_from_file.h"
 
 int main(){
-    RouterInfo* rinfo = read_routers_from_file("routes.txt");
+    char routes_file_name[] = "routes2.txt";
+    RouterInfo* rinfo = read_routers_from_file(routes_file_name);
+
     if (rinfo == NULL) {
         printf("Failed to read router info\n");
         return 1;
     }
-    for (int i = 0; i < rinfo->nRouters; i++) {
+    //print routing tables
+    /*for (int i = 0; i < rinfo->nRouters; i++) {
         printf("Router ID: %llu\n", rinfo->routers[i]->ID);
         print_routing_table(rinfo->routers[i]->table);
-    }
+    }*/
     
     FILE *fp = fopen("packets.txt", "w");
     if (fp != NULL) {
@@ -72,6 +75,7 @@ int main(){
         Router *target_router = get_router_by_id(rinfo, router_id);
         if (target_router == NULL) {
             printf("Invalid router ID. Valid IDs: ");
+            printf("yuuu");
             for (int i = 0; i < rinfo->nRouters; i++) {
                 if (rinfo->routers[i] != NULL) {
                     printf("%llu ", rinfo->routers[i]->ID);

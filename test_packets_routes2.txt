@@ -1,0 +1,206 @@
+# Test Packets for routes2.txt Network Topology (5 Routers)
+# Format: Source IP -> Destination IP: Expected Path
+
+================================================================================
+PACKET 1: Simple Direct Delivery
+================================================================================
+Source:      10.10.10.10
+Destination: 192.168.0.50
+Content:     "Hello Router 1"
+Entry:       Router 1
+
+Expected Path: R1 (direct delivery to local network 192.168.0.0/24)
+Outcome: DELIVERED at Router 1
+
+
+================================================================================
+PACKET 2: Two-Hop Path
+================================================================================
+Source:      10.10.10.10
+Destination: 192.168.1.100
+Content:     "Message to R2"
+Entry:       Router 1
+
+Expected Path: R1 → R2 (matches 10.0.1.0/24) → direct delivery
+Outcome: DELIVERED at Router 2
+
+
+================================================================================
+PACKET 3: Three-Hop via R3
+================================================================================
+Source:      5.5.5.5
+Destination: 192.168.2.75
+Content:     "Reach Router 3"
+Entry:       Router 1
+
+Expected Path: R1 → R2 (matches 10.0.2.0/24) → R3 (direct delivery)
+Outcome: DELIVERED at Router 3
+
+
+================================================================================
+PACKET 4: Four-Hop Maximum Path
+================================================================================
+Source:      8.8.8.8
+Destination: 192.168.4.100
+Content:     "Reach Router 5"
+Entry:       Router 1
+
+Expected Path: R1 → R2 (matches 10.0.2.0/24) → R3 (matches 10.0.3.0/24) → R5 (direct delivery)
+Alternative: R1 → R2 (matches 172.16.0.0/24) → R4 (matches 10.0.3.0/24) → R5
+Outcome: DELIVERED at Router 5 (two possible paths!)
+
+
+================================================================================
+PACKET 5: Path via R4 Branch
+================================================================================
+Source:      1.2.3.4
+Destination: 172.16.0.50
+Content:     "Class B network via R4"
+Entry:       Router 1
+
+Expected Path: R1 → R2 (matches 10.0.2.0/24, but wait - R1 doesn't have this)
+Actual: No direct route from R1 to 172.16.0.x
+Outcome: DROPPED at Router 1 (no matching route)
+
+
+================================================================================
+PACKET 6: Via R2 Hub to R4
+================================================================================
+Source:      50.60.70.80
+Destination: 192.168.3.25
+Content:     "Reach R4 local network"
+Entry:       Router 2
+
+Expected Path: R2 → R4 (matches 172.16.0.0/24 leading to R4, but R4's local is 192.168.3.0)
+Note: R2 has route to 172.16.0.0 via R4, but not to 192.168.3.0 directly
+Outcome: DROPPED at Router 2 (no route to 192.168.3.0/24)
+
+
+================================================================================
+PACKET 7: Multiple Path Test - Via R3
+================================================================================
+Source:      11.22.33.44
+Destination: 10.0.3.50
+Content:     "Test multiple paths to R5"
+Entry:       Router 2
+
+Expected Path: R2 → R3 (matches 10.0.2.0/24) → R5 (matches 10.0.3.0/24)
+Outcome: Packet arrives at R5 but 10.0.3.50 is not R5's local network
+Status: IN TRANSIT at R5
+
+
+================================================================================
+PACKET 8: Multiple Path Test - Via R4
+================================================================================
+Source:      100.100.100.100
+Destination: 10.0.3.100
+Content:     "Alternative path via R4"
+Entry:       Router 2
+
+Expected Path: R2 → R4 (matches 172.16.0.0/24) → R5 (matches 10.0.3.0/24)
+Outcome: Packet arrives at R5 but 10.0.3.100 is not R5's local network
+Status: IN TRANSIT at R5
+
+
+================================================================================
+PACKET 9: Aggregated Route from R5
+================================================================================
+Source:      200.200.200.200
+Destination: 10.0.1.50
+Content:     "Using aggregated route"
+Entry:       Router 5
+
+Expected Path: R5 → R3 (matches 10.0.0.0/16 aggregated) → R2 (has 10.0.2.0 but not 10.0.1.0)
+Note: R5's aggregated route may not lead to specific /24 networks
+Outcome: Complex - depends on R3's routing
+
+
+================================================================================
+PACKET 10: Direct R2 to R3
+================================================================================
+Source:      77.88.99.111
+Destination: 192.168.2.88
+Content:     "Hub to neighbor"
+Entry:       Router 2
+
+Expected Path: R2 → R3 (matches 10.0.2.0/24) → direct delivery
+Outcome: DELIVERED at Router 3
+
+
+================================================================================
+PACKET 11: Direct R2 to R4
+================================================================================
+Source:      15.15.15.15
+Destination: 192.168.3.200
+Content:     "Hub to other neighbor"
+Entry:       Router 2
+
+Expected Path: R2 → R4 (matches 172.16.0.0/24, but R4's local is 192.168.3.0)
+Note: R2 doesn't have direct route to 192.168.3.0
+Outcome: DROPPED at Router 2
+
+
+================================================================================
+PACKET 12: Unroutable Destination
+================================================================================
+Source:      1.1.1.1
+Destination: 200.200.200.200
+Content:     "Unknown network"
+Entry:       Router 1
+
+Expected Path: R1 (no matching route)
+Outcome: DROPPED at Router 1 (no route to 200.200.200.200)
+
+
+================================================================================
+PACKET 13: R3 to R5 Direct
+================================================================================
+Source:      10.5.5.5
+Destination: 192.168.4.50
+Content:     "Direct to R5"
+Entry:       Router 3
+
+Expected Path: R3 → R5 (matches 10.0.3.0/24) → direct delivery
+Outcome: DELIVERED at Router 5
+
+
+================================================================================
+PACKET 14: R4 to R5 Direct
+================================================================================
+Source:      22.22.22.22
+Destination: 192.168.4.75
+Content:     "Another path to R5"
+Entry:       Router 4
+
+Expected Path: R4 → R5 (matches 10.0.3.0/24) → direct delivery
+Outcome: DELIVERED at Router 5
+
+
+================================================================================
+PACKET 15: Full Network Traversal
+================================================================================
+Source:      192.168.0.10
+Destination: 192.168.1.10
+Content:     "R1 local to R2 local"
+Entry:       Router 1
+
+Expected Path: R1 → R2 (matches 10.0.1.0/24) → direct delivery
+Outcome: DELIVERED at Router 2
+
+
+================================================================================
+SUMMARY STATISTICS
+================================================================================
+Total Test Packets: 15
+Expected Delivered: 5
+Expected Dropped: 3
+In Transit/Complex: 7
+
+Key Testing Scenarios:
+- Direct delivery (local network)
+- 2-hop, 3-hop, 4-hop paths
+- Hub routing through R2
+- Multiple alternative paths (R2→R3→R5 vs R2→R4→R5)
+- Aggregated routes (/16) from R5
+- No-route scenarios (dropped packets)
+- Edge cases where intermediate routers lack final routes

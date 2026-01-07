@@ -107,3 +107,11 @@ int enqueue(Queue *q, Packet *p)
 uint32_t create_ip(uint32_t octet1,uint32_t octet2, uint32_t octet3, uint32_t octet4){
     return octet1 << 24 | octet2 << 16 | octet3 << 8 | octet4;
 }
+
+void ip_to_string(uint32_t ip, char *buffer){
+    int octet1 = (ip >> 24) & 0xFF;
+    int octet2 = (ip >> 16) & 0xFF;
+    int octet3 = (ip >> 8) & 0xFF;
+    int octet4 = ip & 0xFF;
+    sprintf(buffer, "%d.%d.%d.%d", octet1, octet2, octet3, octet4);
+}

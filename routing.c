@@ -115,9 +115,13 @@ void process_packet(Router *r){
     
   
     FILE *fp = fopen("packets.txt", "a");
-    printf("-----PACKET %u ROUTER: %llu\n", p->dest_address, r->ID);
+    //printf("-----PACKET %u ROUTER: %llu\n", p->dest_address, r->ID);
+    char src[16]; 
+    ip_to_string(p->src_address, src);
+    char dest[16];
+    ip_to_string(p->dest_address, dest);
     if (fp != NULL) {
-        fprintf(fp, "PACKET SRC: %u DEST: %u, CONTENT: %s ROUTER: %llu", p->src_address, p->dest_address, (char*)p->content, r->ID);
+        fprintf(fp, "PACKET SRC: %s DEST: %s, CONTENT: %s ROUTER: %llu", src, dest, (char*)p->content, r->ID);
     }
 
 
@@ -127,6 +131,14 @@ void process_packet(Router *r){
     // Find longest prefix match
     for (RouteEntry *entry = r->table->routeEntries; entry != NULL; entry = entry->next)
     {
+        char dest_ip_str[16];
+        char route_ip_str[16];
+        char mask_str[16];
+        ip_to_string(p->dest_address, dest_ip_str);
+        ip_to_string(entry->destination_ip, route_ip_str);
+        ip_to_string(entry->mask, mask_str);
+        
+        //printf("ip_packet: %s ip_routeEntry: %s route_mask: %s\n",  dest_ip_str, route_ip_str, mask_str);
         if (is_match(p, entry))
         {
             int prefix_len = __builtin_popcount(entry->mask);
@@ -140,11 +152,11 @@ void process_packet(Router *r){
 
     if (best != NULL)
     {
-        printf("Routing packet with dest ");
-        print_ip(p->dest_address);
+        //printf("Routing packet with dest ");
+        //print_ip(p->dest_address);
         if (best->nextHopRouter != NULL)
         {
-            printf(" -> sending to router %llu\n", best->nextHopRouter->ID);
+            //printf(" -> sending to router %llu\n", best->nextHopRouter->ID);
             fprintf(fp, "\n");
             fclose(fp);
             send_to_router(best->nextHopRouter, p);
@@ -153,7 +165,7 @@ void process_packet(Router *r){
         else
         {
             /* directly delivered locally */
-            printf(" -> DIRECTLY DELIVERED TO ROUTER %llu\n", r->ID);
+            //printf(" -> DIRECTLY DELIVERED TO ROUTER %llu\n", r->ID);
             fprintf(fp, " ARRIVED\n");
             fclose(fp);
             free_packet(p);
@@ -162,7 +174,7 @@ void process_packet(Router *r){
     }
     else
     {
-        printf("No route found. Dropping packet\n");
+        //printf("No route found. Dropping packet\n");
         fprintf(fp, " DROPPED\n");
         fclose(fp);
         free_packet(p);
@@ -241,10 +253,3 @@ void free_router(Router *r)
     free(r);
 }
 
-
-/*
-int main()
-{
-    printf("called routing.c");
-    return 0;
-}*/

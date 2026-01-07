@@ -34,7 +34,7 @@ int main(void)
         printf("Queue is full (expected)\n");
     }
 
-    printf("Attempt enqueue p4 (should fail silently)\n");
+    printf("Attempt enqueue p4 (should fail)\n");
     enqueue(q, p4);
 
     // dequeue and print packets

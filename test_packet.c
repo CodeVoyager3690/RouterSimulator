@@ -10,7 +10,7 @@ int main()
     uint32_t dest =
         (uint32_t)4 | ((uint32_t)3 << 8) | ((uint32_t)2 << 16) | ((uint32_t)1 << 24);
 
-    uint8_t content[] = {'h', 'e', 'l', 'l', 'o'};
+    uint8_t content[] = {'h', 'e', 'l', 'l', 'o', '\0'};
     Packet *p = create_packet(src, dest, 60, content, sizeof(content));
 
     uint8_t *byte_arr = serialize(p);
@@ -27,5 +27,6 @@ int main()
     free_packet(copy);
     free(byte_arr);
 
+   
     return 0;
 }

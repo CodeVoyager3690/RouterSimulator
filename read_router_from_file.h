@@ -1,6 +1,7 @@
 #ifndef READ_ROUTER_FROM_FILE_H
 #define READ_ROUTER_FROM_FILE_H
 
+#define MAX_ROUTERS 10
 typedef struct  {
     int nRouters;
     Router** routers; 

@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "packet.h"
-// forward declarations to avoid circular includes
+
 typedef struct RoutingTable RoutingTable;
 typedef struct RouteEntry RouteEntry;
 
@@ -13,6 +13,7 @@ typedef struct RouteEntry RouteEntry;
 void print_ip(uint32_t ip);
 uint32_t create_ip(uint32_t octet1,uint32_t octet2, uint32_t octet3, uint32_t octet4);
 void ip_to_string(uint32_t ip, char *buffer);
+uint32_t ip_str_to_uint32(char* ip_str);
 
 // circular queue,  not thread safe
 typedef struct Queue

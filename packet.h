@@ -3,7 +3,8 @@
 
 #include <stdint.h>
 
-#define MIN_PACKET_SIZE 10
+#define PACKET_SERIALIZED_MIN_SIZE 10
+//when serialized, a packet has at least 10 bytes: 4 for src, 4 for dest, 1 for ttl, 1 for content_len, (then content_len bytes for content)
 
 typedef struct
 {

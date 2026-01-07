@@ -53,7 +53,7 @@ void print_packet(Packet *p)
 
 uint8_t *serialize(Packet *pck)
 {
-    uint8_t *out = calloc(MIN_PACKET_SIZE + pck->content_len, sizeof(uint8_t));
+    uint8_t *out = calloc(PACKET_SERIALIZED_MIN_SIZE + pck->content_len, sizeof(uint8_t));
     if(!out){
         exit(1);
     }
@@ -83,7 +83,7 @@ Packet *deserialize(uint8_t *byte_arr)
     uint32_t dest_address = ((uint32_t)byte_arr[4] << 24) | ((uint32_t)byte_arr[5] << 16) | ((uint32_t)byte_arr[6] << 8) | (uint32_t)byte_arr[7];
     uint8_t ttl = byte_arr[8];
     uint8_t content_len = byte_arr[9];  
-    uint8_t *content = &byte_arr[10];
+    uint8_t *content = &byte_arr[10]; 
     return create_packet(src_address, dest_address, ttl, content, content_len);
 }
 

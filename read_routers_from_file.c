@@ -6,8 +6,6 @@
 #include "helpers.h"
 #include "packet.h"
 #include "read_router_from_file.h"
-#define MAX_ROUTERS 10
-
 
 
 void free_router_info(RouterInfo* rinfo){
@@ -27,35 +25,6 @@ Router* get_router_by_id(RouterInfo* rinfo, int id){
     return NULL;
 }
 
-
-//assumes abc.def.ghi.jkl
-//yes this could be a lot easier using builtin scan function, but it's good practice
-uint32_t ip_str_to_uint32(char* ip_str) {
-    uint32_t ip = 0;
-    char *p = ip_str; 
-    int multiplier = 100;
-    int octet = 0; 
-    int leftShift = 24;
-    while(1){
-        if(*p == '.' || *p == '\0'){
-            //printf("octet: %d\n", octet);
-            multiplier = 100; 
-            ip = ip | octet << leftShift;
-            leftShift-= 8; 
-            octet = 0;
-            if(*p == '\0'){
-                break;
-            }
-        }
-        else {
-            int d = *p - '0';
-            octet += d * multiplier;
-            multiplier =  multiplier/10;
-        }
-        p++;
-    }
-    return ip;
-}
 
 //assumes perfectly formatted file with no mistakes (like referencing id's that don't have a router associated with them)
 RouterInfo* read_routers_from_file(const char *filename){
@@ -82,7 +51,7 @@ RouterInfo* read_routers_from_file(const char *filename){
     
     //Read router IDs from the first line
     while ((ch = fgetc(fp)) != EOF && ch != '\n') {
-        if (ch >= '0' && ch <= '9') { //can only have 10 routers! 
+        if (ch >= '0' && ch <= '9') { //can only have 10 routers with id's from 0 to 9 
             int router_id = ch - '0';
             Router* r = create_router(router_id);
             rinfo->routers[i] = r;
@@ -100,10 +69,6 @@ RouterInfo* read_routers_from_file(const char *filename){
     char line[128];
     while (fgets(line, sizeof(line), fp) != NULL) {
         if (sscanf(line, "%d %15s %15s %d", &router_id, ip, mask, &next_hop_router_id) == 4) {
-            /*printf("router_id=%d\n", router_id);
-            printf("ip=%s\n", ip);
-            printf("mask=%s\n", mask);
-            printf("next_hop_router_id=%d\n", next_hop_router_id);*/
             //add a route from router a to destination_network ip1 with subnet_mask ip2 via next_hop_router b
             uint32_t dest_network = ip_str_to_uint32(ip);
             uint32_t subnet_mask = ip_str_to_uint32(mask);
@@ -114,8 +79,6 @@ RouterInfo* read_routers_from_file(const char *filename){
             printf("Parse error\n");
         }
     }
-
-
     fclose(fp);
     return rinfo;   
 }

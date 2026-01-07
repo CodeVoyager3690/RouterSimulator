@@ -13,7 +13,7 @@ Router *create_router(uint64_t id)
         exit(1);
     }
     r->ID = id;
-    Queue *q = create_queue(1000);
+    Queue *q = create_queue(DEFAULT_ROUTER_QUEUE_SIZE); 
     if (!q)
     {
         exit(1);
@@ -28,19 +28,11 @@ Router *create_router(uint64_t id)
     return r;
 }
 
-//initialize router with one route
+//initialize router with one route Entry 
 Router *initialize_router(uint64_t id, uint32_t default_network, uint32_t default_mask, Router *default_next_hop)
 {
     Router *r = create_router(id);
-    
-    // Create routing table
-    RoutingTable *table = (RoutingTable *)malloc(sizeof(RoutingTable));
-    if (!table)
-    {
-        exit(1);
-    }
-    
-    // Create default route entry
+  
     RouteEntry *default_entry = (RouteEntry *)malloc(sizeof(RouteEntry));
     if (!default_entry)
     {
@@ -51,10 +43,7 @@ Router *initialize_router(uint64_t id, uint32_t default_network, uint32_t defaul
     default_entry->mask = default_mask;
     default_entry->nextHopRouter = default_next_hop;
     default_entry->next = NULL;
-    
-    table->routeEntries = default_entry;
-    r->table = table;
-    
+    r->table->routeEntries = default_entry;
     return r;
 }
 
@@ -99,7 +88,6 @@ void send_to_router(Router *r, Packet *p)
 }
 
 void process_packet(Router *r){
-    //printf("called");
     if (r == NULL || r->table == NULL)
     {
         return;
@@ -115,7 +103,6 @@ void process_packet(Router *r){
     
   
     FILE *fp = fopen("packets.txt", "a");
-    //printf("-----PACKET %u ROUTER: %llu\n", p->dest_address, r->ID);
     char src[16]; 
     ip_to_string(p->src_address, src);
     char dest[16];
@@ -128,7 +115,7 @@ void process_packet(Router *r){
     RouteEntry *best = NULL;
     int best_prefix = -1;
 
-    // Find longest prefix match
+    // Find route entry with longest prefix match
     for (RouteEntry *entry = r->table->routeEntries; entry != NULL; entry = entry->next)
     {
         char dest_ip_str[16];
@@ -164,7 +151,7 @@ void process_packet(Router *r){
         }
         else
         {
-            /* directly delivered locally */
+            //packet diretly delivered
             //printf(" -> DIRECTLY DELIVERED TO ROUTER %llu\n", r->ID);
             fprintf(fp, " ARRIVED\n");
             fclose(fp);
@@ -180,10 +167,9 @@ void process_packet(Router *r){
         free_packet(p);
         return;
     }
-    ;
 }
 
-
+//not used
 void process_packets(Router *r)
 {
     if (r == NULL || r->table == NULL)
@@ -205,11 +191,11 @@ void* process_packets_parallel(void *arg)
         return NULL;
     }
 
-    while (1)
+    while (1) //todo: allow threads to exit
     {
         process_packet(r);
     }
-    //return NULL;
+    return NULL;
 }
 
 int is_match(Packet *pck, RouteEntry *routeEntry)
@@ -237,19 +223,15 @@ void free_router(Router *r)
     // Free routing table and its entries
     if (r->table != NULL)
     {
-        if (r->table->routeEntries != NULL)
-        {
-            free_route_entries(r->table->routeEntries);
-        }
+        free_route_entries(r->table->routeEntries);
         free(r->table);
     }
     
-    // Free queue (note: this will NOT free packets still in queue)
+    // Free queue 
     if (r->queue != NULL)
     {
         free_queue(r->queue);
     }
-    
     free(r);
 }
 

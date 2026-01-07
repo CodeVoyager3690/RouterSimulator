@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include "helpers.h"
 
+#define DEFAULT_ROUTER_QUEUE_SIZE 1000
 typedef struct Router Router;
 
 typedef struct RouteEntry

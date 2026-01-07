@@ -80,7 +80,7 @@ int is_empty_queue(Queue *q)
 
 int is_full_queue(Queue *q)
 {
-    return ((q->rear + 1) % q->capacity) == q->head;
+    return ((q->rear + 1) % q->capacity) == q->head; //one entry is "wasted" to make the difference with an empty queue
 }
 Packet *dequeue(Queue *q)
 {
@@ -103,15 +103,38 @@ int enqueue(Queue *q, Packet *p)
     return 1;
 }
 
-//there is also  the built in function int inet_pton(int af, const char *src, void *dst);
 uint32_t create_ip(uint32_t octet1,uint32_t octet2, uint32_t octet3, uint32_t octet4){
     return octet1 << 24 | octet2 << 16 | octet3 << 8 | octet4;
 }
 
+//there exists  also the built in function int inet_pton(int af, const char *src, void *dst);
 void ip_to_string(uint32_t ip, char *buffer){
     int octet1 = (ip >> 24) & 0xFF;
     int octet2 = (ip >> 16) & 0xFF;
     int octet3 = (ip >> 8) & 0xFF;
     int octet4 = ip & 0xFF;
     sprintf(buffer, "%d.%d.%d.%d", octet1, octet2, octet3, octet4);
+}
+
+uint32_t ip_str_to_uint32(char* ip_str){
+    uint32_t ip = 0;
+    char *p = ip_str; 
+    int octet = 0; 
+    int leftShift = 24;
+    while(1){
+        if(*p == '.' || *p == '\0'){
+            ip = ip | (octet << leftShift);
+            leftShift -= 8; 
+            octet = 0;
+            if(*p == '\0'){
+                break;
+            }
+        }
+        else {
+            int d = *p - '0';
+            octet = octet * 10 + d;
+        }
+        p++;
+    }
+    return ip;
 }

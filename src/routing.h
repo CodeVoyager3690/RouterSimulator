@@ -39,6 +39,7 @@ void process_packets(Router *r);
 void process_packet(Router *r);
 int is_match(Packet *pck, RouteEntry *routeEntry);
 void* process_packets_parallel(void *arg);
+void free_route_entries(RouteEntry *entry);
 void free_router(Router *r);
 
 #endif

@@ -3,9 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <pthread.h>
 
-pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
 Router *create_router(uint64_t id)
 {
@@ -115,14 +113,13 @@ void process_packet(Router *r){
         return;
     }
     
-    pthread_mutex_lock(&lock);
+  
     FILE *fp = fopen("packets.txt", "a");
     printf("-----PACKET %u ROUTER: %llu\n", p->dest_address, r->ID);
     if (fp != NULL) {
-        fprintf(fp, "PACKET SRC: %u DEST: %u, CONTENT: %s ROUTER: %llu\n", p->src_address, p->dest_address, (char*)p->content, r->ID);
-        fclose(fp);
+        fprintf(fp, "PACKET SRC: %u DEST: %u, CONTENT: %s ROUTER: %llu", p->src_address, p->dest_address, (char*)p->content, r->ID);
     }
-    pthread_mutex_unlock(&lock);
+
 
     RouteEntry *best = NULL;
     int best_prefix = -1;
@@ -148,6 +145,8 @@ void process_packet(Router *r){
         if (best->nextHopRouter != NULL)
         {
             printf(" -> sending to router %llu\n", best->nextHopRouter->ID);
+            fprintf(fp, "\n");
+            fclose(fp);
             send_to_router(best->nextHopRouter, p);
             return; 
         }
@@ -155,6 +154,8 @@ void process_packet(Router *r){
         {
             /* directly delivered locally */
             printf(" -> DIRECTLY DELIVERED TO ROUTER %llu\n", r->ID);
+            fprintf(fp, " ARRIVED\n");
+            fclose(fp);
             free_packet(p);
             return;
         }
@@ -162,9 +163,12 @@ void process_packet(Router *r){
     else
     {
         printf("No route found. Dropping packet\n");
+        fprintf(fp, " DROPPED\n");
+        fclose(fp);
         free_packet(p);
         return;
     }
+    ;
 }
 
 

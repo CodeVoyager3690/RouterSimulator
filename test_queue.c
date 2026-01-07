@@ -12,7 +12,7 @@ int main(void)
         return 1;
     }
 
-    // create some packets
+   
     uint8_t content1[] = "Hello";
     uint8_t content2[] = "World";
     uint8_t content3[] = "Succeeds";
@@ -51,13 +51,13 @@ int main(void)
         printf("Queue is empty (expected)\n");
     }
 
-    // free all packets
+
     free_packet(p1);
     free_packet(p2);
     free_packet(p3);
     free_packet(p4);
 
-    // free queue
+
     free_queue(q);
 
     return 0;

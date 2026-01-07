@@ -103,12 +103,7 @@ int enqueue(Queue *q, Packet *p)
     return 1;
 }
 
+//there is also  the built in function int inet_pton(int af, const char *src, void *dst);
 uint32_t create_ip(uint32_t octet1,uint32_t octet2, uint32_t octet3, uint32_t octet4){
     return octet1 << 24 | octet2 << 16 | octet3 << 8 | octet4;
 }
-/*
-int main()
-{
-    printf("helpers.c ran\n");
-    return 0;
-}*/

@@ -1,4 +1,4 @@
-#include "helpers.h" // for print_ip
+#include "helpers.h" 
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -16,6 +16,7 @@ Packet *create_packet(uint32_t src, uint32_t dest, uint8_t ttl, uint8_t *content
     p->content = malloc(content_len * sizeof(uint8_t));
     for (int i = 0; i < content_len; i++)
     {
+        //copy,be careful for memory 
         p->content[i] = content[i];
     }
     return p;
@@ -49,7 +50,7 @@ void print_packet(Packet *p)
     printf("\n");
 }
 
-//big endian order for network
+
 uint8_t *serialize(Packet *pck)
 {
     uint8_t *out = calloc(MIN_PACKET_SIZE + pck->content_len, sizeof(uint8_t));
@@ -81,14 +82,8 @@ Packet *deserialize(uint8_t *byte_arr)
     uint32_t src_address = ((uint32_t)byte_arr[0] << 24) | ((uint32_t)byte_arr[1] << 16) | ((uint32_t)byte_arr[2] << 8) | (uint32_t)byte_arr[3];
     uint32_t dest_address = ((uint32_t)byte_arr[4] << 24) | ((uint32_t)byte_arr[5] << 16) | ((uint32_t)byte_arr[6] << 8) | (uint32_t)byte_arr[7];
     uint8_t ttl = byte_arr[8];
-    uint8_t content_len = byte_arr[9];
+    uint8_t content_len = byte_arr[9];  
     uint8_t *content = &byte_arr[10];
     return create_packet(src_address, dest_address, ttl, content, content_len);
 }
 
-/*
-int main()
-{
-    printf("packet.c ran \n");
-    return 0;
-}*/

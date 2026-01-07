@@ -93,7 +93,7 @@ void add_route(Router *r, uint32_t destination_ip, uint32_t mask, Router *next_h
     current->next = new_entry;
 }
 
-// todo add routin table and entries;
+
 
 void send_to_router(Router *r, Packet *p)
 {
@@ -119,7 +119,7 @@ void process_packet(Router *r){
     FILE *fp = fopen("packets.txt", "a");
     printf("-----PACKET %u ROUTER: %llu\n", p->dest_address, r->ID);
     if (fp != NULL) {
-        fprintf(fp, "PACKET: %u ROUTER: %llu\n", p->dest_address, r->ID);
+        fprintf(fp, "PACKET SRC: %u DEST: %u, CONTENT: %s ROUTER: %llu\n", p->src_address, p->dest_address, (char*)p->content, r->ID);
         fclose(fp);
     }
     pthread_mutex_unlock(&lock);
@@ -148,9 +148,8 @@ void process_packet(Router *r){
         if (best->nextHopRouter != NULL)
         {
             printf(" -> sending to router %llu\n", best->nextHopRouter->ID);
-            /* forward: enqueue on next router's queue — do NOT free here */
             send_to_router(best->nextHopRouter, p);
-            return; /* packet now owned by next router */
+            return; 
         }
         else
         {
@@ -185,8 +184,6 @@ void process_packets(Router *r)
 void* process_packets_parallel(void *arg)
 {
     Router *r = (Router *)arg;
-    FILE *fp = fopen("output.txt", "a");
-    fprintf(fp, "%llu: Starting packet processing thread\n", r->ID);
     if (r == NULL || r->table == NULL)
     {
         return NULL;
@@ -194,15 +191,7 @@ void* process_packets_parallel(void *arg)
 
     while (1)
     {
-        /*
-        if (is_empty_queue(r->queue))
-        {
-            usleep(1000); // Sleep for 1ms when queue is empty
-        }
-        else
-        {*/
-            process_packet(r);
-        //}
+        process_packet(r);
     }
     //return NULL;
 }

@@ -28,6 +28,29 @@ Router *create_router(uint64_t id)
     return r;
 }
 
+void free_router(Router *r)
+{
+    if (r == NULL)
+    {
+        return;
+    }
+    
+    // Free routing table and its entries
+    if (r->table != NULL)
+    {
+        free_route_entries(r->table->routeEntries);
+        free(r->table);
+    }
+    
+    // Free queue 
+    if (r->queue != NULL)
+    {
+        free_queue(r->queue);
+    }
+    free(r);
+}
+
+
 //initialize router with one route Entry 
 Router *initialize_router(uint64_t id, uint32_t default_network, uint32_t default_mask, Router *default_next_hop)
 {
@@ -102,7 +125,7 @@ void process_packet(Router *r){
     }
     
   
-    FILE *fp = fopen("packets.txt", "a");
+    FILE *fp = fopen("../InputOutput/packets.txt", "a");
     char src[16]; 
     ip_to_string(p->src_address, src);
     char dest[16];
@@ -144,7 +167,7 @@ void process_packet(Router *r){
         if (best->nextHopRouter != NULL)
         {
             //printf(" -> sending to router %llu\n", best->nextHopRouter->ID);
-            fprintf(fp, "\n");
+            fprintf(fp, " FORWARDING\n");
             fclose(fp);
             send_to_router(best->nextHopRouter, p);
             return; 
@@ -183,9 +206,9 @@ void process_packets(Router *r)
     }
 }
 
-void* process_packets_parallel(void *arg)
+void* process_packets_parallel(void *router)
 {
-    Router *r = (Router *)arg;
+    Router *r = (Router *)router;
     if (r == NULL || r->table == NULL)
     {
         return NULL;
@@ -213,25 +236,4 @@ void free_route_entries(RouteEntry *entry)
     }
 }
 
-void free_router(Router *r)
-{
-    if (r == NULL)
-    {
-        return;
-    }
-    
-    // Free routing table and its entries
-    if (r->table != NULL)
-    {
-        free_route_entries(r->table->routeEntries);
-        free(r->table);
-    }
-    
-    // Free queue 
-    if (r->queue != NULL)
-    {
-        free_queue(r->queue);
-    }
-    free(r);
-}
 

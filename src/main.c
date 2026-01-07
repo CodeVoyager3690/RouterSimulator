@@ -8,8 +8,8 @@
 #include "routing_parallel.h"
 #include "read_router_from_file.h"
 
-#define ROUTES_FILE_NAME  "routes2.txt"
-#define PACKETS_FILE_NAME "packets.txt"
+#define ROUTES_FILE_NAME  "../InputOutput/routes.txt"
+#define PACKETS_FILE_NAME "../InputOutput/packets.txt"
 
 int main(){
     RouterInfo* rinfo = read_routers_from_file(ROUTES_FILE_NAME);

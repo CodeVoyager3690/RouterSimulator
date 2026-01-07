@@ -11,6 +11,5 @@ void start_routing_parallel(int n_router, Router **routers) {
     for (int i = 0; i < n_router; i++) {
         pthread_t thread;
         pthread_create(&thread, NULL, process_packets_parallel, (void *) routers[i]);
-        //pthread_detach(thread); 
     }
 }
